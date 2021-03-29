@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      input{
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <p> <%=msg%> </p>
+    <form class="" action="/login" method="post">
+      <label for="username">Username:</label>
+      <input type="text" name="username" value="" required>
+      <label for="password">Password:</label>
+      <input type="password" name="password" value="" required>
+
+      <button type="submit" name="button">Register</button>
+    </form>
+    <p>Forgot your username or password? <a href="/forgot">click here</a></p>
+
+  </body>
+</html>

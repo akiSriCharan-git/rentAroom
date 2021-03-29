@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      input{
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <form class="" action="/signup" method="post">
+      <p> <%=msg%> </p>
+      <label for="name">Name:</label>
+      <input type="text" name="name" placeholder='Your full name' required value="<%=name%>">
+
+      <label for="birthday">Birthday:</label>
+      <input type="date" name="birthday" required value="<%= birthday %>">
+
+      <label for="address">Address:</label>
+      <div class="form-group">
+        <input type="text" name="housenumber" placeholder="House number" required value='<%= housenumber %>'>
+
+        <input type="text" name="street" placeholder="Street" required value="<%= street%>">
+
+         <input type="text" name="city" placeholder="City" required value="<%= city %>">
+
+         <input type="text" name="state" placeholder="State" required value="<%=state%>">
+
+         <input type="text" name="country" placeholder='country' required value="<%= country %>">
+
+         <input type="number" name="pincode" placeholder="pincode" required value="<%= pincode %>">
+
+         <input type="email" name="email" placeholder="Enter your email" value= "<%=email%>" required>
+
+         <button type="submit" name="next">Verify Email</button>
+       </div>
+
+    </form>
+  </body>
+</html>

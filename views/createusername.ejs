@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      input{
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <p> <%=msg%> </p>
+    <form class="" action="/createUser" method="post">
+      <input type="hidden" name="email" value="<%= email %>">
+      <label for="username">Username:</label>
+      <input type="text" name="username" value="" required>
+      <label for="password">Password:</label>
+      <input type="text" name="password" value="" required>
+      <label for="confirmPassword">confirm Password</label>
+      <input type="text" name="confirmPassword" value="" required>
+
+      <button type="submit" name="button">Register</button>
+    </form>
+  </body>
+</html>

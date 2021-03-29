@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <p> <%=msg%> </p>
+    <form class="" action="/verify" method="post">
+      <input type="hidden" name="email" value="<%= email %>">
+      <input type="number" name="otp" required>
+      <button type="submit" name="button">Verify</button>
+    </form>
+    <form class="" action="/resendotp" method="post">
+      <input type="hidden" name="email" value="<%= email %>">
+      <button type="submit" name="button">Resend otp</button>
+    </form>
+  </body>
+</html>
