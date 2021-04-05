@@ -9,7 +9,7 @@ const flash = require('connect-flash')
 const session = require('express-session');
 const nodemailer = require('nodemailer');
 var bcrypt = require('bcrypt-nodejs');
-var crypto = require('crypto');
+var crypto = require('crypto')
 
 
 
@@ -22,7 +22,7 @@ var LocalStrategy = require('passport-local').Strategy;
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public')); 
 app.use(flash());
 
 //session
@@ -320,7 +320,7 @@ passport.use(new LocalStrategy(function(username, password, done) {
 app.post("/login", function(req, res, next){
     passport.authenticate("local", function(err, user, info){
         if(err){ return next(err);}
-        if(!user){return res.render("login", {msg : info.messages})}
+        if(!user){return res.render("login", {msg : info.message})}
         req.logIn(user, function(err){
             if(err){ return next(err); }
             return res.redirect("/main");
