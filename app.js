@@ -5,13 +5,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const ejs = require('ejs');
-const flash = require('connect-flash')
 const session = require('express-session');
 const nodemailer = require('nodemailer');
 var bcrypt = require('bcrypt-nodejs');
-var crypto = require('crypto')
 
-
+require('./models/users');
 
 // for passportJS (for simplified authentication)
 const passport = require('passport');
@@ -22,8 +20,7 @@ var LocalStrategy = require('passport-local').Strategy;
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine', 'ejs');
-app.use(express.static(__dirname + '/public')); 
-app.use(flash());
+app.use(express.static(__dirname + '/public'));
 
 //session
 app.use(session({
@@ -35,101 +32,45 @@ app.use(passport.initialize())
 app.use(passport.session());
 
 // mongoose connect
-mongoose.connect('mongodb://localhost:27017/'+ process.env.COLLECTION, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
+mongoose.connect('mongodb://localhost:27017/'+ process.env.DBNAME, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 mongoose.set('useCreateIndex', true) // to remove deprication error
 
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  done(null, user);
 });
 
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
-  });
-});
-
-const userSchema = new mongoose.Schema({
-  name: String,
-  birthday: Date,
-  address: {
-    houseNumber: String,
-    street: String,
-    city: String,
-    state: String,
-    country: String,
-    pincode: Number,
-  },
-  email: String,
-  username: String,
-  password: String,
-  phone: String,
-  otp: Number,
-  otpexpire: Date
-});
-
-userSchema.methods.validPassword = function (password) {
-  if (password === this.password) {
-    return true;
-  } else {
-    return false;
+passport.deserializeUser(function(user, done) {
+  if(user!=null){
+    done(null,user);
   }
-}
-
-// user.save() hashes the passsword
-userSchema.pre('save', function(next) {
-  var user = this;
-  var SALT_FACTOR = 5;
-
-  if (!user.isModified('password')) return next();
-
-  bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
-    if (err) return next(err);
-
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
-      if (err) return next(err);
-      user.password = hash;
-      next();
-    });
-  });
 });
 
-userSchema.methods.comparePassword = function(candidatePassword, cb) {
-  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-    if (err) return cb(err);
-    cb(null, isMatch);
-  });
-};
 
-userSchema.plugin(passportLocalMongoose);
+const User = mongoose.model('User');  // creating User model
 
-const User = new mongoose.model('user', userSchema);  // creating User model
-
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
 
 app.get('/', (req, res)=>{
   res.render('home')
 })
 
 app.get('/login', (req, res)=>{
-  res.render('login', {msg: ''})
+  res.render('login', {msg: '', seller: false})
 })
 
 app.get('/signup', (req, res)=>{
-  res.render('signup', {msg:'', name:'', birthday: '', housenumber: '', street:'', city: '', state: '', state:'', country:'', pincode:'', email:''})
+  res.render('signup', {msg:'', name:'', birthday: '', housenumber: '', street:'', city: '', state: '', state:'', country:'', pincode:'', email:'', seller: false})
 })
 
 app.get('/main', (req, res)=>{
   if(req.isAuthenticated()){
-    res.render('main', {username: req.user.username})
+    res.render('main', {user: req.user})
   }else{
-    res.render('login', {msg: 'please login'})
+    res.render('login', {msg: 'please login', seller: false})
   }
 })
 
 app.get('/forgot', (req, res)=>{
-  res.render('forgot', {msg: ''})
+  res.render('forgot', {msg: '', seller: false})
 })
 let transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -146,12 +87,12 @@ app.post('/signup', (req, res)=>{
     name: req.body.name,
     birthday: req.body.birthday,
     address: {
-      hosenumber: req.body.housenumber,
-      street: req.body.steet,
+      housenumber: req.body.housenumber,
+      street: req.body.street,
       city: req.body.city,
       state: req.body.state,
       country: req.body.country,
-      pincode: req.body.pincode,
+      pincode: req.body.pincode
     },
     email: req.body.email
   })
@@ -177,14 +118,14 @@ app.post('/signup', (req, res)=>{
         if(err){
           console.log(err)
         }else{
-          res.render('verifyotp', {msg:'otp sent sucessfully to '+ req.body.email, email: req.body.email})
+          res.render('verifyotp', {msg:'otp sent sucessfully to '+ req.body.email, email: req.body.email, seller: false})
         }
       })
     }else{
-      res.render('signup', {name: req.body.name, email:'',birthday: req.body.birthday, housenumber: req.body.housenumber, street: req.body.street, city: req.body.city, state: req.body.state, country: req.body.country, pincode: req.body.pincode, msg: 'This email already exists please use different one'})
+      res.render('signup', {name: req.body.name, email:'',birthday: req.body.birthday, housenumber: req.body.housenumber, street: req.body.street, city: req.body.city, state: req.body.state, country: req.body.country, pincode: req.body.pincode, msg: 'This email already exists please use different one', seller: false})
     }
   })
-})
+});
 
 
 app.post('/verify', (req, res)=>{
@@ -193,17 +134,17 @@ app.post('/verify', (req, res)=>{
       console.log(err)
     }else{
       if(!foundUser){
-        res.render('verifyotp', {email: req.body.email, msg: 'otp expired click resend otp'})
+        res.render('verifyotp', {email: req.body.email, msg: 'otp expired click resend otp', seller: false})
       }else{
         if(foundUser.otp == req.body.otp){
-          res.render('createusername', {msg:'', email: req.body.email})
+          res.render('createusername', {msg:'', email: req.body.email, seller: false})
         }else{
-          res.render('verifyotp', {email: req.body.email, msg: 'incorrect otp'})
+          res.render('verifyotp', {email: req.body.email, msg: 'incorrect otp', seller: false})
         }
       }
     }
   })
-})
+});
 
 app.post('/resendotp', (req, res)=>{
   User.findOne({email: req.body.email}, function(err, foundUser){
@@ -229,12 +170,12 @@ app.post('/resendotp', (req, res)=>{
       if(err){
         console.log(err)
       }else{
-        res.render('verifyotp', {msg:'otp sent again to '+ req.body.email, email: req.body.email})
+        res.render('verifyotp', {msg:'otp sent again to '+ req.body.email, email: req.body.email, seller: false})
       }
     })
   })
 
-})
+});
 
 app.post('/createUser', (req, res)=>{
   User.findOne({username: req.body.username}, (err, foundUser)=>{
@@ -259,10 +200,10 @@ app.post('/createUser', (req, res)=>{
           }
         })
       }else{
-        res.render('createusername', {msg: "passwwords didn't match", email: req.body.email})
+        res.render('createusername', {msg: "passwwords didn't match", email: req.body.email, seller: false})
       }
     }else{
-      res.render('createusername', {msg: 'username already exists try another one', email: req.body.email})
+      res.render('createusername', {msg: 'username already exists try another one', email: req.body.email, seller: false})
     }
   })
 })
@@ -303,7 +244,7 @@ app.post('/createUser', (req, res)=>{
 //     }
 //   })
 // }))
-passport.use(new LocalStrategy(function(username, password, done) {
+passport.use('user-local', new LocalStrategy(function(username, password, done) {
   User.findOne({ username: username }, function(err, user) {
     if (err) return done(err);
     if (!user) return done(null, false, { message: 'Incorrect username.' });
@@ -318,15 +259,15 @@ passport.use(new LocalStrategy(function(username, password, done) {
 }));
 
 app.post("/login", function(req, res, next){
-    passport.authenticate("local", function(err, user, info){
+    passport.authenticate("user-local", function(err, user, info){
         if(err){ return next(err);}
-        if(!user){return res.render("login", {msg : info.message})}
+        if(!user){return res.render("login", {msg : info.message, seller: false})}
         req.logIn(user, function(err){
             if(err){ return next(err); }
             return res.redirect("/main");
         })
     })(req, res, next)
-})
+});
 
 
 
@@ -335,12 +276,12 @@ app.post('/forgot', (req, res)=>{
     if(err){
       console.log(err)
     }else if(foundUser == null){
-      res.render('forgot', {msg: 'No account exists with that email, please enter valid email'})
+      res.render('forgot', {msg: 'No account exists with that email, please enter valid email', seller: false})
     }else{
       var otp = Math.random();
       otp = otp * 1000000;
       otp = parseInt(otp);
-      User.findOneAndUpdate({email: req.body.email}, {otp: otp, otpexpire: Date.now()+360000}, (err, done)=>{
+      User.findOneAndUpdate({email: req.body.email}, {otp: otp, otpexpire: Date.now()+3600000}, (err, done)=>{
         if(err){
           console.log(err)
         }
@@ -354,12 +295,12 @@ app.post('/forgot', (req, res)=>{
         if(err){
           console.log(err)
         }else{
-          res.render('passwordchange', {username: foundUser.username, msg:'', email:req.body.email})
+          res.render('passwordchange', {username: foundUser.username, msg:'', email:req.body.email, seller: false})
         }
       })
     }
   })
-})
+});
 
 // passport.use('passwordchange', new LocalStrategy(function(username, otp, password, confirmpassword, done){
 //   if(otp == this.otp){
@@ -378,7 +319,7 @@ app.post('/passwordchange', (req, res)=>{
     if(err){
       console.log(err)
     }else if(foundUser == null){
-      res.render('passwordchange', {username: req.body.username, msg: 'otp expired click resend', email: req.body.email})
+      res.render('passwordchange', {username: req.body.username, msg: 'otp expired click resend', email: req.body.email, seller: false})
     }
     else{
       if(foundUser.otp == req.body.otp){
@@ -398,10 +339,10 @@ app.post('/passwordchange', (req, res)=>{
             }
           })
         }else{
-          res.render('passwordchange', {username: req.body.username, msg: "password didn't match", email: req.body.email})
+          res.render('passwordchange', {username: req.body.username, msg: "password didn't match", email: req.body.email, seller: false})
         }
       }else{
-    res.render('passwordchange', {username: req.body.username, msg: 'incorrect otp', email: req.body.email})
+    res.render('passwordchange', {username: req.body.username, msg: 'incorrect otp', email: req.body.email, seller: false})
   }
 }
 })
@@ -427,13 +368,14 @@ app.post('/resendotpforpasswordchange', (req, res)=>{
     if(err){
       console.log(err)
     }else{
-      res.render('passwordchange', {username: req.body.username, msg:'otp sent again to '+ req.body.email, email: req.body.email})
+      res.render('passwordchange', {username: req.body.username, msg:'otp sent again to '+ req.body.email, email: req.body.email, seller: true})
     }
   })
 })
 
+app.use(require('./sellers/app.js'))
 
-app.post('/logout', (req, res)=>{
+app.get('/logout', (req, res)=>{
   req.logout();
   res.redirect('/');
 })
