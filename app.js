@@ -8,6 +8,7 @@ const ejs = require('ejs');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
 var bcrypt = require('bcrypt-nodejs');
+const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 
 require('./models/users');
 
@@ -32,7 +33,7 @@ app.use(passport.initialize())
 app.use(passport.session());
 
 // mongoose connect
-mongoose.connect('mongodb://localhost:27017/'+ process.env.DBNAME, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
+mongoose.connect('mongodb://172.20.0.1:60000/'+ process.env.DBNAME, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 mongoose.set('useCreateIndex', true) // to remove deprication error
 
 passport.serializeUser(function(user, done) {
@@ -63,7 +64,11 @@ app.get('/signup', (req, res)=>{
 
 app.get('/main', (req, res)=>{
   if(req.isAuthenticated()){
-    res.render('main', {user: req.user})
+    if(!req.seller){
+      res.render('main', {user: req.user})
+    }else{
+      res.redirect('logout')
+    }
   }else{
     res.render('login', {msg: 'please login', seller: false})
   }
@@ -244,7 +249,8 @@ app.post('/createUser', (req, res)=>{
 //     }
 //   })
 // }))
-passport.use('user-local', new LocalStrategy(function(username, password, done) {
+
+passport.use('user-local', new LocalStrategy(function(username, password, done){
   User.findOne({ username: username }, function(err, user) {
     if (err) return done(err);
     if (!user) return done(null, false, { message: 'Incorrect username.' });
@@ -368,7 +374,7 @@ app.post('/resendotpforpasswordchange', (req, res)=>{
     if(err){
       console.log(err)
     }else{
-      res.render('passwordchange', {username: req.body.username, msg:'otp sent again to '+ req.body.email, email: req.body.email, seller: true})
+      res.render('passwordchange', {username: req.body.username, msg:'otp sent again to '+ req.body.email, email: req.body.email, seller: false})
     }
   })
 })
@@ -378,7 +384,133 @@ app.use(require('./sellers/app.js'))
 app.get('/logout', (req, res)=>{
   req.logout();
   res.redirect('/');
+});
+
+app.get('/search', (req, res)=>{
+  if(req.isAuthenticated()){
+    res.render('search', {user: req.user, rooms:[], search: '', msg:''})
+  }else{
+    res.render('login', {msg: 'please login', seller: false})
+  }
+});
+require('./models/rooms');
+const Room = mongoose.model('Room');
+require('./models/requests');
+const Request = mongoose.model('Request');
+
+
+app.post('/search', (req, res)=>{
+  Room.find({location: req.body.search.toLowerCase(), occupied: false}, (err, docs)=>{
+    res.render('search', {user: req.user, rooms:docs, search: req.body.search, msg:''})
+  })
+});
+
+app.post('/request', (req, res)=>{
+  Request.findOne({from: req.body.from, for: req.body.for}, (err, request)=>{
+    if(request){
+      res.render('search', {user: req.user, msg:'request already sent', rooms:[], search:''})
+    }else{
+      const request = new Request({
+        from: req.body.from,
+        to: req.body.to,
+        for: req.body.for
+      });
+      request.save()
+      req.logIn(req.user, err=>{
+        if(!err){
+          res.render('search', {user: req.user, msg:'request sent succesfully', rooms:[], search:''})
+        }
+      })
+    }
+  })
+});
+
+app.get('/requested', (req, res)=>{
+  if(req.isAuthenticated()){
+    if(!req.user.seller){
+      Request.find({from: req.user.username, accepted: true, expired: false}, (err, acc)=>{
+        Request.find({from: req.user.username, accepted: false, expired: false}, (ere, pen)=>{
+          Request.find({from: req.user.username, expired: true}, (err, exp)=>{
+            Request.find({to: req.user.username, alloted: true}, (err, allot)=>{
+              res.render('requests', {accepted: acc, pending: pen, expired: exp, user: req.user, alloted: allot})
+
+            })
+
+          })
+        })
+      })
+
+
+    }
+  }else{
+    res.render('login', {msg: "please login", seller: false})
+  }
+});
+
+app.get('/requests', (req, res)=>{
+  if(req.isAuthenticated()){
+    if(req.user.seller){
+      Request.find({to: req.user.username, accepted: true, expired: false}, (err, acc)=>{
+        Request.find({to: req.user.username, accepted: false, expired: false}, (ere, pen)=>{
+          Request.find({to: req.user.username, expired: true}, (err, exp)=>{
+            res.render('requests', {accepted: acc, pending: pen, expired: exp, user: req.user})
+
+          })
+        })
+      })
+    }
+  }else{
+    res.render('login', {msg: "please login", seller: false})
+  }
+});
+
+app.post('/accept-request', (req, res)=>{
+  Request.findOne({_id: req.body.requestid}, (err, foundRequest)=>{
+    foundRequest.accepted = true;
+    foundRequest.save(err=>{
+      Request.find({to: req.user.username, accepted: true, expired: false}, (err, acc)=>{
+        Request.find({to: req.user.username, accepted: false, expired: false}, (ere, pen)=>{
+          Request.find({to: req.user.username, expired: true}, (err, exp)=>{
+            res.render('requests', {accepted: acc, pending: pen, expired: exp, user: req.user})
+
+          })
+        })
+      })
+    })
+
+  })
+});
+
+app.post('/allot-room', (req, res)=>{
+  Room.findOne({_id: req.body.roomid}, (err, foundRoom)=>{
+    foundRoom.occupied = true;
+    foundRoom.current = req.body.current;
+    foundRoom.occupiedby.push(req.body.current);
+    foundRoom.save()
+    Request.findOne({_id: req.body.requestid}, (err, request)=>{
+      request.alloted = true
+      request.save()
+    })
+    Request.find({for: req.body.roomid}, (err, docs)=>{
+      docs.forEach((item) => {
+        item.expired = true;
+        item.save((err)=>{
+          Request.find({to: req.user.username, accepted: true, expired: false}, (err, acc)=>{
+            Request.find({to: req.user.username, accepted: false, expired: false}, (ere, pen)=>{
+              Request.find({to: req.user.username, expired: true}, (err, exp)=>{
+                res.render('requests', {accepted: acc, pending: pen, expired: exp, user: req.user})
+
+
+              })
+            })
+          })
+        })
+      });
+
+    })
+  })
 })
+
 
 const port = process.env.PORT || 3000
 app.listen(port, ()=>{

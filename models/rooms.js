@@ -15,7 +15,13 @@ const roomSchema = new mongoose.Schema({
   image: [String],
   price: Number,
   maxpeople: Number,
-  location: String
+  location: String,
+  address: String,
+  current: String,
+  occupiedby: {
+    type: [String],
+    default: []
+  }
 });
 
 mongoose.model('Room', roomSchema);

@@ -40,7 +40,7 @@
                 <li class="nav-item">
                   <a class="nav-link" href="/search">
                     <i class="fas fa-search"></i>
-                    search
+                    Search
                   </a>
                 </li>
                 <li class="nav-item">
@@ -50,7 +50,7 @@
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="/requested ">
+                  <a class="nav-link" href="/requested">
                     <i class="fas fa-user-plus"></i>
                     Your requests
                   </a>
@@ -65,11 +65,103 @@
             </div>
         </nav>
         <div class="col-md-9 col-lg-10">
-          <h1>Hi <%= user.name %></h1>
+          <% if(alloted.length != 0){ %>
+          <table class="table login-box">
+            <thead>
+              Alloted room
+
+            <tr>
+                <th scope="col">Owner</th>
+                <th scope="col">Room</th>
+                <th scope="col">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+              <% alloted.forEach((items)=>{ %>
+                <tr>
+                  <td><a href="/seller/<%=items.to%>"><%= items.to %></a></td>
+                  <td><a href="/room/<%= items.for %>"><%= items.for %></a></td>
+                  <td> alloted </td>
+
+                </tr>
+              <% } ) %>
+            </tbody>
+          </table>
+          <% } %>
+          <table class="table login-box">
+            <thead>
+              Sent requests
+
+            <tr>
+                <th scope="col">Owner</th>
+                <th scope="col">Room</th>
+                <th scope="col">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+              <% accepted.forEach((items)=>{ %>
+                <tr>
+                  <td><a href="/seller/<%=items.to%>"><%= items.to %></a></td>
+                  <td><a href="/room/<%= items.for %>"><%= items.for %></a></td>
+                  <td> accepted </td>
+
+                </tr>
+              <% } ) %>
+            </tbody>
+          </table>
+          <table class="table login-box">
+            <thead>
+              Pending requests
+
+            <tr>
+                <th scope="col">Owner</th>
+                <th scope="col">Room</th>
+                <th scope="col">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+              <% pending.forEach((items)=>{ %>
+                <tr>
+                  <td><a href="/seller/<%=items.to%>"><%= items.to %></a></td>
+                  <td><a href="/room/<%= items.for %>"><%= items.for %></a></td>
+                  <td> Pending ...</td>
+
+                </tr>
+              <% } ) %>
+            </tbody>
+          </table>
+          <table class="table login-box">
+            <thead>
+              Expired requests
+
+            <tr>
+                <th scope="col">Owner</th>
+                <th scope="col">Room</th>
+                <th scope="col">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+              <% expired.forEach((items)=>{ %>
+                <tr>
+                  <td><a href="/seller/<%=items.to%>"><%= items.to %></a></td>
+                  <td><a href="/room/<%= items.for %>"><%= items.for %></a></td>
+                  <td> Expired </td>
+
+                </tr>
+              <% } ) %>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+  <script>
+    $(document).ready(function(){
+    $("#accept").on("click", function(){
+        $("#requestForm").submit();
+    });
+});
+</script>
   </body>
 </html>

@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 const passportLocalMongoose = require('passport-local-mongoose');
+var bcrypt = require('bcrypt-nodejs');
 
 
 const sellerSchema = new mongoose.Schema({
   name: String,
   birthday: Date,
   address: {
-    houseNumber: String,
+    housenumber: String,
     street: String,
     city: String,
     state: String,
@@ -18,7 +19,11 @@ const sellerSchema = new mongoose.Schema({
   password: String,
   phone: String,
   otp: Number,
-  otpexpire: Date
+  otpexpire: Date,
+  seller:{
+    type: Boolean,
+    default: true
+  }
 });
 
 // seller.save() hashes the passsword
