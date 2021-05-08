@@ -430,9 +430,9 @@ app.get('/requested', (req, res)=>{
     if(!req.user.seller){
       Request.find({from: req.user.username, accepted: true, expired: false}, (err, acc)=>{
         Request.find({from: req.user.username, accepted: false, expired: false}, (ere, pen)=>{
-          Request.find({from: req.user.username, expired: true}, (err, exp)=>{
-            Request.find({to: req.user.username, alloted: true}, (err, allot)=>{
-              res.render('requests', {accepted: acc, pending: pen, expired: exp, user: req.user, alloted: allot})
+          Request.find({from: req.user.username, expired: true, alloted: false}, (err, exp)=>{
+            Request.find({from: req.user.username, alloted: true, expired: true}, (err, allot)=>{
+              res.render('requested', {accepted: acc, pending: pen, expired: exp, user: req.user, alloted: allot})
 
             })
 
@@ -487,14 +487,16 @@ app.post('/allot-room', (req, res)=>{
     foundRoom.current = req.body.current;
     foundRoom.occupiedby.push(req.body.current);
     foundRoom.save()
-    Request.findOne({_id: req.body.requestid}, (err, request)=>{
-      request.alloted = true
-      request.save()
-    })
+
     Request.find({for: req.body.roomid}, (err, docs)=>{
+      // console.log(docs)
       docs.forEach((item) => {
         item.expired = true;
         item.save((err)=>{
+          Request.findOne({_id: req.body.requestid}, (err, request)=>{
+            request.alloted = true
+            request.save()
+          })
           Request.find({to: req.user.username, accepted: true, expired: false}, (err, acc)=>{
             Request.find({to: req.user.username, accepted: false, expired: false}, (ere, pen)=>{
               Request.find({to: req.user.username, expired: true}, (err, exp)=>{
@@ -509,7 +511,22 @@ app.post('/allot-room', (req, res)=>{
 
     })
   })
-})
+});
+
+app.get('/previous-rooms', (req, res)=>{
+  if(req.isAuthenticated()){
+    if(!req.user.seller){
+      res.render('previous-rooms', {msg: '', user: req.user})
+    }
+  }else{
+    res.render('login', {msg: 'please login', seller: false})
+  }
+});
+
+app.get('/aboutus', (req, res)=>{
+  res.render('aboutus')
+});
+
 
 
 const port = process.env.PORT || 3000

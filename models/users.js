@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   birthday: Date,
   address: {
-    houseNumber: String,
+    housenumber: String,
     street: String,
     city: String,
     state: String,

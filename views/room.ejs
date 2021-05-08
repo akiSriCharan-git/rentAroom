@@ -26,44 +26,83 @@
       </ul>
     </nav>
     <div class="container-fluid">
-      <div class="row " >
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar" >
-          <div class="sidebar-sticky " >
-            <!-- <div class="collapse sidebar-collapse" id="navbarSupportedContent"> -->
-              <ul class="nav flex-column" >
-                <li class="nav-item">
-                  <a class="nav-link active" href="/seller-main">
-                    <i class="fas fa-home"></i>
-                    Home
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/add-a-room">
-                    <i class="fas fa-plus"></i>
-                    Add a room
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/your-rooms">
-                    <i class="fas fa-door-open"></i>
-                    Your rooms
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/requests">
-                    <i class="fas fa-users"></i>
-                    Requests for viewing
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/profile">
-                    <i class="fas fa-user-circle"></i>
-                    Profile
-                  </a>
-                </li>
-              </ul>
-            </div>
+      <div class="row">
+        <% if(user.seller){ %>
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="/seller-main">
+                  <i class="fas fa-home"></i>
+                  Home
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/add-a-room">
+                  <i class="fas fa-plus"></i>
+                  Add a room
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/your-rooms">
+                  <i class="fas fa-door-open"></i>
+                  Your rooms
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/requests">
+                  <i class="fas fa-users"></i>
+                  Requests for viewing
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/seller/<%= user.username %>">
+                  <i class="fas fa-user-circle"></i>
+                  Profile
+                </a>
+              </li>
+            </ul>
+          </div>
         </nav>
+        <% }else{ %>
+          <nav class="col-md-2 d-none d-md-block bg-light sidebar" >
+            <div class="sidebar-sticky " >
+              <!-- <div class="collapse sidebar-collapse" id="navbarSupportedContent"> -->
+                <ul class="nav flex-column" >
+                  <li class="nav-item">
+                    <a class="nav-link active" href="/main">
+                      <i class="fas fa-home"></i>
+                      Home
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/search">
+                      <i class="fas fa-search"></i>
+                      search
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/previous-rooms">
+                      <i class="fas fa-door-open"></i>
+                      Previous rooms
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/requested ">
+                      <i class="fas fa-user-plus"></i>
+                      Your requests
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/user/<%= user.username %>">
+                      <i class="fas fa-user-circle"></i>
+                      Profile
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </nav>
+      <%  } %>
         <div class="col-md-9 col-lg-10">
           <div class="">
             <div class="login-box">
@@ -135,8 +174,12 @@
         </div>
         <% }else if(!user.seller){ %>
           <div class="center">
-            <button type="button" name="button" class='btn btn-primary'>send request</button>
-
+            <button type="button" name="button" class='btn btn-primary' id="requestBtn">send request</button>
+            <form class=""id="requestForm" action="/request" method="post">
+              <input type="hidden" name="from" value="<%=user.username%>">
+              <input type="hidden" name="to" value="<%=room.owner%>">
+              <input type="hidden" name="for" value="<%=room._id%>">
+            </form>
           </div>
         <% } %>
             </div>
@@ -146,5 +189,12 @@
     </div>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+  <script type="text/javascript">
+  $(document).ready(function(){
+    $("#requestBtn").click(function(){
+      $('#requestForm').submit();
+    })
+  })
+  </script>
   </body>
 </html>

@@ -74,6 +74,8 @@
                 <th scope="col">Owner</th>
                 <th scope="col">Room</th>
                 <th scope="col">Status</th>
+                <th scope="col">Message</th>
+
             </tr>
             </thead>
             <tbody>
@@ -82,6 +84,9 @@
                   <td><a href="/seller/<%=items.to%>"><%= items.to %></a></td>
                   <td><a href="/room/<%= items.for %>"><%= items.for %></a></td>
                   <td> alloted </td>
+                  <td>
+                    Confirm your room within 3 days with seller or else you may lose it.
+                  </td>
 
                 </tr>
               <% } ) %>
@@ -90,7 +95,7 @@
           <% } %>
           <table class="table login-box">
             <thead>
-              Sent requests
+              Accepted requests
 
             <tr>
                 <th scope="col">Owner</th>
@@ -99,6 +104,11 @@
             </tr>
             </thead>
             <tbody>
+              <% if(accepted.length == 0){ %>
+                <div class="alert alert-info">
+                  No accepted requests
+                </div>
+              <% } %>
               <% accepted.forEach((items)=>{ %>
                 <tr>
                   <td><a href="/seller/<%=items.to%>"><%= items.to %></a></td>
@@ -120,6 +130,11 @@
             </tr>
             </thead>
             <tbody>
+              <% if(pending.length == 0){ %>
+                <div class="alert alert-info">
+                  No pending requests
+                </div>
+              <% } %>
               <% pending.forEach((items)=>{ %>
                 <tr>
                   <td><a href="/seller/<%=items.to%>"><%= items.to %></a></td>
@@ -141,6 +156,11 @@
             </tr>
             </thead>
             <tbody>
+              <% if(expired.length == 0){ %>
+                <div class="alert alert-info">
+                  No expired requests
+                </div>
+              <% } %>
               <% expired.forEach((items)=>{ %>
                 <tr>
                   <td><a href="/seller/<%=items.to%>"><%= items.to %></a></td>

@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>rentAroom</title>
     <script src="https://kit.fontawesome.com/ef834406bc.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./../css/login.css">
     <link rel="stylesheet" href="./../../css/login.css">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
     <style media="screen">
       .nav-link, .navbar-brand, .navbar-toggler{
@@ -24,6 +26,7 @@
     </nav>
     <div class="container-fluid">
       <div class="row">
+        <% if(user.seller){ %>
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
@@ -52,7 +55,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/profile">
+                <a class="nav-link" href="/seller/<%= user.username %>">
                   <i class="fas fa-user-circle"></i>
                   Profile
                 </a>
@@ -60,89 +63,126 @@
             </ul>
           </div>
         </nav>
-        <div class="col-md-9 col-lg-10">
-          <div class="center">
-            <div class="login-box center">
-              <% if(seller){ %>
-              <form class="" action="/seller-edit" method="post">
-              <% }else{ %>
-              <form class="" action="/user-edit" method="post">
-                <div class="form-group row">
-                  <label for="type" class="col-sm-3 col-form-label">Name:</label>
-                  <div class="col-sm-9">
-                    <input type="text" name="name" value="<%= user.name %>" required class="form-control">
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="birthday" class="col-sm-3 col-form-label">Birthday:</label>
-                  <div class="col-sm-9">
-                    <input type="date" name="birthday" placeholder="Enter few lines about the room" class="form-control" required value=" <%= new Date(user.birthday).toString().substring(1, 10) %> ">
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label for="address" class="col-sm-3 col-form-label">Address:</label>
-                  <div class="col-sm-9">
-                    <input type="number" name="housenumber" required value="<%= user.housenumber %>" placeholder="housenumber" class="form-control">
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <div class="col-sm-3">
-
-                  </div>
-                  <div class="col-sm-9">
-                    <input type="text" class='form-control' required name="street" value="<%= user.street %>">
-                  </div>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-3">
-
-                  </div>
-                  <div class="col-sm-9">
-                    <input type="text" class='form-control' required name="city" value="<%= user.city %>">
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <div class="col-sm-3">
-
-                  </div>
-                  <div class="col-sm-9">
-                    <input type="text" class='form-control' required name="state" value="<%= user.state %>">
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <div class="col-sm-3">
-
-                  </div>
-                  <div class="col-sm-9">
-                    <input type="text" class='form-control' required name="country" value="<%= user.country %>">
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <div class="col-sm-3">
-
-                  </div>
-                  <div class="col-sm-9">
-                    <input type="number" class='form-control' required name="pincode" value="<%= user.pincode %>">
-                  </div>
-                </div>
-
-                <input type="hidden" name="username" value="<%= user.username%>">
-                <button type="submit" class='btn btn-primary form-control'name="button">Save</button>
-              </form>
-              <% if(user.seller){ %>
-                <button type="button" class="btn btn-warning" name="button" onclick="/seller-forgot">change password</button>
-              <% }else{ %>
-                <button type="button" class="btn btn-warning" name="button" onclick="/forgot">change password</button>
-
+        <% }else{ %>
+          <nav class="col-md-2 d-none d-md-block bg-light sidebar" >
+            <div class="sidebar-sticky " >
+              <!-- <div class="collapse sidebar-collapse" id="navbarSupportedContent"> -->
+                <ul class="nav flex-column" >
+                  <li class="nav-item">
+                    <a class="nav-link active" href="/main">
+                      <i class="fas fa-home"></i>
+                      Home
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/search">
+                      <i class="fas fa-search"></i>
+                      search
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/previous-rooms">
+                      <i class="fas fa-door-open"></i>
+                      Previous rooms
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/requested ">
+                      <i class="fas fa-user-plus"></i>
+                      Your requests
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/user/<%= user.username %>">
+                      <i class="fas fa-user-circle"></i>
+                      Profile
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </nav>
+      <%  } %>
+      <div class="col-md-9 col-lg-10">
+        <div class="center">
+          <div class="login-box center">
+            <% if(user.seller){ %>
+              <form class="" action="/edit-seller" method="post">
+            <% }else{ %>
+            <form class="" action="/edit-user" method="post">
               <% } %>
+              <div class="form-group row">
+                <label for="name" class="col-sm-3 col-form-label">Name:</label>
+                <div class="col-sm-9">
+                  <input type="text" name="name" value="<%= user.name %>" required class="form-control">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="birthday" class="col-sm-3 col-form-label">Birthday:</label>
+                <div class="col-sm-9">
+                  <input type="date" name="birthday"  class="form-control" required value="<%= new Date(user.birthday).toISOString().substring(0, 10)%>">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="phone" class="col-sm-3 col-form-label">Phone:</label>
+                <div class="col-sm-9">
+                  <input type="text" name="phone" value="<%= user.phone %>" required class="form-control">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="address" class="col-sm-3 col-from-label">Address:</label>
+                <div class="col-sm-9">
+                  <input type="text" name="housenumber" placeholder="House number" required value='<%= user.address.housenumber %>' class="form-control">
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-sm-3">
+                </div>
+                <div class="col-sm-9">
+                  <input type="text" name="street" placeholder="Street" required value="<%= user.address.street%>" class="form-control">
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-sm-3">
 
-            </div>
+                </div>
+                <div class="col-sm-9">
+                  <input type="text" name="city" placeholder="City" required value="<%= user.address.city %>" class="form-control">
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-sm-3">
+
+                </div>
+                <div class="col-sm-9">
+                  <input type="text" name="state" placeholder="State" required value="<%=user.address.state%>" class="form-control">
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-sm-3">
+
+                </div>
+                <div class="col-sm-9">
+                  <input type="text" name="country" placeholder='country' required value="<%= user.address.country %>" class="form-control">
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-sm-3">
+
+                </div>
+                <div class="col-sm-9">
+                  <input type="number" name="pincode" placeholder="pincode" required value="<%= user.address.pincode %>" class="form-control">
+                </div>
+              </div>
+
+              <button type="submit" class='btn btn-primary form-control'name="button">Save</button>
+            </form>
+            <br>
+            <% if(user.seller){ %>
+              <button type="button" name="button" class="btn btn-warning form-control" onclick="location.href='/seller-forgot'">Change Password</button>
+            <%} else{%>
+              <button type="button" name="button" class="btn btn-warning form-control" onclick="location.href='/forgot'">Change Password</button>
+
+            <% } %>
           </div>
         </div>
       </div>
-    </div>
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
-  </body>
-</html>

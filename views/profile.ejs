@@ -105,9 +105,15 @@
             <!-- <div class="login-box"> -->
               <table class="table login-box">
       <thead>
+        <% if(requser.username == user.username) {%>
         <div class="center">
           <h3>Your personal details</h3>
         </div>
+        <% }else{ %>
+          <div class="center">
+            <h3>Details</h3>
+          </div>
+        <% } %>
       </thead>
       <tbody>
         <tr>
@@ -123,7 +129,8 @@
           <td> <%=user.phone%> </td>
         </tr>
         <tr>
-          <th scope="column">Address:</th>
+          <th scope="column">Address</th>
+          <td></td>
         </tr>
         <tr>
           <th scope="row">Housenumber:</th>
@@ -153,8 +160,10 @@
       </tbody>
 
     </table>
+    <% if(requser.username == user.username) {%>
     <div class="center">
         <% if(user.seller){ %>
+
           <button type="submit" name="button" class='btn btn-primary' onclick="location.href='/edit-profile/seller/<%= user.username %>'">edit details</button>
 
         <% }else{ %>
@@ -162,6 +171,7 @@
 
       <%  } %>
     </div>
+    <% } %>
         </div>
       </div>
     </div>

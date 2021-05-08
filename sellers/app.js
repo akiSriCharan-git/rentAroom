@@ -375,7 +375,7 @@ app.get('/room/:roomid', (req, res)=>{
       }
     })
   }else{
-    res.render('login', {msg: 'please login', seller: true})
+    res.render('login', {msg: 'please login', seller: false})
 
   }
 });
@@ -413,14 +413,18 @@ app.post('/edited-room', (req, res)=>{
 });
 
 app.get('/:role/:username', (req, res)=>{
-  if(req.params.role == 'seller'){
-    Seller.findOne({username: req.params.username}, (err, foundSeller)=>{
-      res.render('profile', {user: foundSeller})
-    })
-  }else {
-    User.findOne({username: req.params.username}, (err, foundUser)=>{
-      res.render('profile', {user: foundUser})
-    })
+  if(req.isAuthenticated()){
+    if(req.params.role == 'seller'){
+      Seller.findOne({username: req.params.username}, (err, foundSeller)=>{
+        res.render('profile', {user: foundSeller, requser: req.user})
+      })
+    }else {
+      User.findOne({username: req.params.username}, (err, foundUser)=>{
+        res.render('profile', {user: foundUser, requser: req.user})
+      })
+    }
+  }else{
+    res.render('home')
   }
 });
 
@@ -445,7 +449,7 @@ app.get('/edit-profile/:role/:username', (req, res)=>{
   }
 });
 
-app.post('edit-seller', (req, res)=>{
+app.post('/edit-seller', (req, res)=>{
   Seller.findOne({username: req.user.username}, (err, foundUser)=>{
     foundUser.name = req.body.name
     foundUser.birthday = req.body.birthday
@@ -454,18 +458,19 @@ app.post('edit-seller', (req, res)=>{
     foundUser.address.state = req.body.state
     foundUser.address.country = req.body.country
     foundUser.address.pincode = req.body.pincode
+    foundUser.address.city = req.body.city
     foundUser.phone = req.body.phone
 
     foundUser.save()
 
-    req.logIn(req.user, err=>{
+    req.logIn(foundUser, err=>{
       if(!err){
-        res.redirect('/seller'+foundUser.username)
+        res.redirect('/seller/'+foundUser.username)
       }
     })
   })
 });
-app.post('edit-user', (req, res)=>{
+app.post('/edit-user', (req, res)=>{
   User.findOne({username: req.user.username}, (err, foundUser)=>{
     foundUser.name = req.body.name
     foundUser.birthday = req.body.birthday
@@ -474,13 +479,14 @@ app.post('edit-user', (req, res)=>{
     foundUser.address.state = req.body.state
     foundUser.address.country = req.body.country
     foundUser.address.pincode = req.body.pincode
+    foundUser.address.city = req.body.city
     foundUser.phone = req.body.phone
 
     foundUser.save()
 
     req.logIn(req.user, err=>{
       if(!err){
-        res.redirect('/user'+foundUser.username)
+        res.redirect('/user/'+foundUser.username)
       }
     })
   })

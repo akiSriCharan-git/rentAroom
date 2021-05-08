@@ -11,6 +11,14 @@
       .nav-link, .navbar-brand, .navbar-toggler{
         color: #d0af84;
       }
+      .btn{
+        border: solid #d0af84;
+        color: #d0af84;
+      }
+      .btn:hover{
+        background-color: #d0af84;
+        color: black;
+      }
       </style>
   </head>
   <body>
@@ -65,7 +73,47 @@
             </div>
         </nav>
         <div class="col-md-9 col-lg-10">
-          <h1>Hi <%= user.name %></h1>
+          <h1>Hi <%= user.name %>, welcome to rentAroom</h1>
+          <br><br><br>
+          <h3>See what you have in this website</h3>
+          <br>
+          <br>
+
+          <div class="center">
+            <div class="row">
+              <div class="col-sm-6 col-md-3">
+                <a class="nav-link" href="/add-a-room">
+                <i class="fas fa-plus fa-3x"></i>
+              </a>
+                <br>
+                <button type="button"class="btn" name="button" onclick="location.href='/add-a-room'">Add a room</button>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <a class="nav-link" href="/your-rooms">
+                  <i class="fas fa-door-open fa-3x"></i>
+                </a>
+                <br>
+                <button type="button"class="btn" name="button" onclick="location.href='/your-rooms'">You rooms</button>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <a class="nav-link" href="/requests">
+                  <i class="fas fa-user-plus fa-3x"></i>
+                </a>
+                <br>
+                <button type="button"class="btn" name="button" onclick="location.href='/requests'">Requests for viewing</button>
+
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <a class="nav-link" href="/seller/<%= user.username %>">
+                  <i class="fas fa-user-circle fa-3x"></i>
+                </a>
+                <br>
+                <button type="button"class="btn" name="button" onclick="location.href='/seller/<%= user.username %>'">Profile </button>
+
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
