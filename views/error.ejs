@@ -33,6 +33,8 @@
     </nav>
     <div class="container-fluid">
       <div class="row">
+        <% if(user.seller){ %>
+
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
@@ -61,7 +63,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/profile">
+                <a class="nav-link" href="/seller/<%= user.username %>">
                   <i class="fas fa-user-circle"></i>
                   Profile
                 </a>
@@ -69,6 +71,45 @@
             </ul>
           </div>
         </nav>
+        <% }else{ %>
+          <nav class="col-md-2 d-none d-md-block bg-light sidebar" >
+            <div class="sidebar-sticky " >
+              <!-- <div class="collapse sidebar-collapse" id="navbarSupportedContent"> -->
+                <ul class="nav flex-column" >
+                  <li class="nav-item">
+                    <a class="nav-link active" href="/main">
+                      <i class="fas fa-home"></i>
+                      Home
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/search">
+                      <i class="fas fa-search"></i>
+                      search
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/previous-rooms">
+                      <i class="fas fa-door-open"></i>
+                      Previous rooms
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/requested ">
+                      <i class="fas fa-user-plus"></i>
+                      Your requests
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/user/<%= user.username %>">
+                      <i class="fas fa-user-circle"></i>
+                      Profile
+                    </a>
+                  </li>
+                </ul>
+              </div>
+          </nav>
+      <%  } %>
         <div class="col-md-9 col-lg-10">
           <div class="alert alert-warning">
             <%= msg %>

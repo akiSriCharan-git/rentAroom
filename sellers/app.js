@@ -433,16 +433,20 @@ app.get('/edit-profile/:role/:username', (req, res)=>{
     if(req.params.role == 'seller'){
       if(req.user.username == req.params.username){
         Seller.findOne({username: req.params.username}, (err, foundSeller)=>{
-          res.render('editprofile', {user: foundSeller, seller: true})
+          res.render('editprofile', {user: foundSeller, seller: true, requser: req.user})
         })
       }else{
-        res.render('error', {msg: 'You are not authorized to edit this information'})
+        res.render('error', {msg: 'You are not authorized to edit this information', user: req.user})
       }
 
     }else{
-      User.findOne({username: req.params.username}, (err, foundUser)=>{
-        res.render('editprofile', {user: foundUser, seller: false})
-      })
+      if(req.user.username == req.params.username){
+        User.findOne({username: req.params.username}, (err, foundUser)=>{
+          res.render('editprofile', {user: foundUser, seller: false, requser: req.user})
+        })
+      }else{
+        res.render('error', {msg: 'You are not authorized to edit this information', user: req.user})
+      }
     }
   }else{
     res.render('login', {msg: 'please login', seller: (req.params.role == 'seller')})
